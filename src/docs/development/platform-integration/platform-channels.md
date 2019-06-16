@@ -11,41 +11,60 @@ This guide describes how to write custom platform-specific code. Some
 platform-specific functionality is available through existing packages;
 see [using packages](/docs/development/packages-and-plugins/using-packages).
 
+本指南介绍如何编写自定义的平台特定代码。一些平台特定的功能可通过现有的 packages 获得，请看 [using packages](/docs/development/packages-and-plugins/using-packages)。
+
 Flutter uses a flexible system that allows you to call platform-specific APIs
 whether available in Java or Kotlin code on Android,
 or in Objective-C or Swift code on iOS.
 
+Flutter 使用一个灵活的系统，允许您调用平台特定的api，无论是 Android 上的 Java 或 Kotlin 代码，
+还是 iOS 上的 Objective-C 或 Swift 代码。
+
 Flutter's platform-specific API support does not rely on code generation,
 but rather on a flexible message passing style:
 
+Flutter 平台特定的 API 支持不依赖于代码生成，而是依赖于灵活的消息传递方式:
+
 * The Flutter portion of the app sends messages to its *host*,
   the iOS or Android portion of the app, over a platform channel.
+  
+  应用程序的 Flutter 部分通过平台通道（platform channel）发送消息到其应用程序的所在的宿主（iOS 或 Android）。
 
 * The *host* listens on the platform channel, and receives the message.
   It then calls into any number of platform-specific APIs&mdash;using
   the native programming language&mdash;and sends a response back to the
   *client*, the Flutter portion of the app.
+  
+  宿主监听平台通道，并接收消息。然后它会调用一些该平台特定的API（使用原生编程语言） - 并将响应发送回客户端，即应用程序的Flutter部分。
  
 {{site.alert.note}}
   This guide addresses using the platform channel mechanism if you need 
   to use the platform's APIs or libraries in Java/Kotlin/Objective-C or Swift.
   But you can also write platform-specific Dart code in your Flutter app
-  by inspecting the
-  [defaultTargetPlatform]({{site.api}}/flutter/foundation/defaultTargetPlatform.html)
-  property. [Platform adaptations](/docs/resources/platform-adaptations)
+  by inspecting the [defaultTargetPlatform]({{site.api}}/flutter/foundation/defaultTargetPlatform.html) property. [Platform adaptations](/docs/resources/platform-adaptations)
   lists some platform-specific adaptations that Flutter automatically does
   for you in the framework.
+  
+  本指南主要介绍当您需要使用平台特定 api 或 库（Java/Kotlin/Objective-C 或 Swift）时如何使用平台通道机制。
+  但您也可以在您的 Flutter 应用程序中通过检查 [defaultTargetPlatform]({{site.api}}/flutter/foundation/defaultTargetPlatform.html) 属性来编写平台特定的 Dart 代码。[Platform adaptations](/docs/resources/platform-adaptations) 列出了一些平台特定的适配，Flutter 会自动在框架中为您做这些适配。
+
 {{site.alert.end}}
 
 ## Architectural overview: platform channels {#architecture}
 
+## 架构概述: 平台通道 {#architecture}
+
 Messages are passed between the client (UI) and host (platform) using platform
 channels as illustrated in this diagram:
+
+使用平台通道在客户端（Flutter UI）和宿主（平台）之间传递消息，如下图所示：
 
 ![Platform channels architecture](/images/PlatformChannels.png)
 
 Messages and responses are passed asynchronously,
 to ensure the user interface remains responsive.
+
+消息和响应是异步传递的，以确保用户界面保持可响应的状态。
 
 On the client side, `MethodChannel` ([API][MethodChannel]) enables sending
 messages that correspond to method calls. On the platform side, `MethodChannel`
